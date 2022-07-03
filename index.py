@@ -22,12 +22,14 @@ SCOPES = ['https://mail.google.com/']
 
 
 sender = 'me'
-reciever = '<RECIEVER_ID>' #Change <> with reciever's emailID
+reciever = '<RECIEVER_ID>'  # Change <> with reciever's emailID
 subject = 'Test mail'
 content = 'This is automated draft mail'
-attachment = None #Add attachments if any
+attachment = None  # Add attachments if any
 
 # Message creator. Creates and returns the message with encryption.
+
+
 def Messenger():
     message = EmailMessage()
     message.set_content(content)
@@ -59,6 +61,27 @@ def Drafter(service, create_message=Messenger()):
     return draft
 
 
+def ThreadSearch(service):
+    try:
+        threads = service.users().threads().list(
+            userId='me').execute().get('threads', [])
+        for thread in threads:
+            tdata = service.users().threads().get(
+                userId='me', id=thread['id']).execute()
+            nmsgs = len(tdata['messages'])
+            if nmsgs > 1:
+                msg = tdata['messages'][0]['payload']
+                subject = ''
+                for header in msg['headers']:
+                    if header['name'] == 'Subject':
+                        subject = header['value']
+                        break
+                if subject:  # skip if no Subject line
+                    print(F'- {subject}, {nmsgs}')
+    except HttpError as error:
+        print(F'An error occurred: {error}')
+
+
 # Sends the message returned by Messenger()
 def sendMessage(service, create_message=Messenger()):
     try:
@@ -73,9 +96,9 @@ def sendMessage(service, create_message=Messenger()):
 
 def main():
     """Shows basic usage of the Gmail API.
-    Lists the user's Gmail labels.
     """
     creds = None
+
     # The file token.json stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
     # time.
@@ -97,6 +120,7 @@ def main():
     service = build('gmail', 'v1', credentials=creds)
     Messenger()
     sendMessage(service)
+    ThreadSearch(service)
 
 
 if __name__ == '__main__':
