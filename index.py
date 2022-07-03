@@ -18,7 +18,7 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
 # If modifying these scopes, delete the file token.json.
-SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
+SCOPES = ['https://mail.google.com/']
 
 
 sender = 'me'
@@ -76,7 +76,6 @@ def main():
     Lists the user's Gmail labels.
     """
     creds = None
-    SCOPES = ['https://mail.google.com/']
     # The file token.json stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
     # time.
